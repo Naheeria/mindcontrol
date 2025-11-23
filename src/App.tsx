@@ -37,7 +37,6 @@ import {
   signOut,
   onAuthStateChanged,
   User,
-  signInWithCustomToken,
 } from "firebase/auth";
 import {
   getFirestore,
@@ -237,29 +236,28 @@ export default function App() {
     setDb(_db);
     setAppId(_appId);
 
-    const initAuth = async () => {
-      // If token provided by system
-      if (window.__initial_auth_token) {
-        await signInWithCustomToken(_auth, window.__initial_auth_token);
-      } else {
-        // Default to anonymous, but allow Google later
-        // We wait for user action for Google login
-        const currentUser = _auth.currentUser;
-        if (!currentUser) {
-          await signInAnonymously(_auth);
-        }
-      }
-    };
-    initAuth();
-
     const unsubscribe = onAuthStateChanged(_auth, (u) => {
-      setUser(u);
-      if (u) setLoading(false);
-      else setLoading(false);
+        if (u) {
+            // 구글 로그인 또는 이미 로그인된 익명 사용자를 복원
+            setUser(u);
+            setLoading(false);
+        } else {
+            // 🚨🚨🚨 이 부분이 핵심 수정입니다! 🚨🚨🚨
+            // 아무도 로그인되어 있지 않을 때만 익명 로그인 시도
+            signInAnonymously(_auth)
+                .then(userCredential => {
+                    setUser(userCredential.user); // 익명 사용자 상태 설정
+                    setLoading(false);
+                })
+                .catch(error => {
+                    console.error("익명 로그인 실패:", error);
+                    setLoading(false);
+                });
+        }
     });
 
     return () => unsubscribe();
-  }, []);
+}, []);
 
   // --- Google Login ---
   const handleGoogleLogin = async () => {
@@ -1248,7 +1246,7 @@ function EntryModal({ isOpen, onClose, initialData, onSave, theme }: any) {
   const [kptProblem, setKptProblem] = useState("");
   const [kptTry, setKptTry] = useState("");
   const [isAutoSaving, setIsAutoSaving] = useState(false);
-  const debounceTimer = useRef<number | undefined>();
+  const debounceTimer = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     if (!initialData) {
