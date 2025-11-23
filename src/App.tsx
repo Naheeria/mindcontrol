@@ -1248,7 +1248,7 @@ function EntryModal({ isOpen, onClose, initialData, onSave, theme }: any) {
   const [kptProblem, setKptProblem] = useState("");
   const [kptTry, setKptTry] = useState("");
   const [isAutoSaving, setIsAutoSaving] = useState(false);
-  const debounceTimer = useRef<NodeJS.Timeout>();
+  const debounceTimer = useRef<number | undefined>();
 
   useEffect(() => {
     if (!initialData) {
