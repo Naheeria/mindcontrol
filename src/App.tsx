@@ -1308,13 +1308,13 @@ function EntryModal({ isOpen, onClose, initialData, onSave, theme }: any) {
       // @ts-ignore
       if (debounceTimer.current)
         clearTimeout(debounceTimer.current as unknown as number);
-      debounceTimer.current = setTimeout(async () => {
+     debounceTimer.current = setTimeout(async () => {
         await onSave(
           { date, type, title, content: getFinalContent(), metadata: {} },
           initialData.id
         );
         setIsAutoSaving(false);
-      }, 3000);
+      }, 3000) as unknown as number;
     }
     return () => {
       // @ts-ignore
