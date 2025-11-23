@@ -50,12 +50,12 @@ import {
   serverTimestamp,
   writeBatch,
 } from "firebase/firestore";
+declare const window: any;
 
 // --- Types ---
 type RecordType = "MorningPage" | "BrainDump" | "Emotion" | "Retrospective";
 type ThemeType = "pink" | "blue" | "green" | "purple";
 type ViewMode = "list" | "calendar" | "stats";
-const window = globalThis as any;
 
 interface MindRecord {
   id: string;
